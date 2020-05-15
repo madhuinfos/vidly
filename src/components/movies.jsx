@@ -8,7 +8,6 @@ export default class Movies extends Component {
   };
 
   render() {
-    console.log(this.state.movies);
     return (
       <React.Fragment>
         <br />
@@ -39,7 +38,7 @@ export default class Movies extends Component {
         <td>{movie.dailyRentalRate}</td>
         <td>
           <Like
-            onClick={() => this.handleLike(movie._id)}
+            onClick={() => this.handleLike(movie)}
             liked={movie.liked}
           ></Like>
         </td>
@@ -66,14 +65,11 @@ export default class Movies extends Component {
     this.setState({ movies: getMovies() });
   }
 
-  handleLike(id) {
-    const movie = getMovie(id);
-
+  handleLike(movie) {
     const movies = [...this.state.movies];
     const index = movies.indexOf(movie);
 
     movies[index] = { ...movies[index] };
-
     movies[index].liked = !movies[index].liked;
 
     this.setState({ movies });
