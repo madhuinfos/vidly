@@ -1,5 +1,6 @@
 import React, { Component } from "react";
-import { getMovies, deleteMovie } from "../services/fakeMovieService";
+import { getMovie, getMovies, deleteMovie } from "../services/fakeMovieService";
+import Like from "./common/like";
 
 export default class Movies extends Component {
   state = {
@@ -37,6 +38,12 @@ export default class Movies extends Component {
         <td>{movie.numberInStock}</td>
         <td>{movie.dailyRentalRate}</td>
         <td>
+          <Like
+            onClick={() => this.handleLike(movie._id)}
+            liked={movie.liked}
+          ></Like>
+        </td>
+        <td>
           <button
             className="btn btn-danger btn-sm"
             onClick={() => this.deleteMovie(movie._id)}
@@ -57,5 +64,18 @@ export default class Movies extends Component {
   deleteMovie(id) {
     deleteMovie(id);
     this.setState({ movies: getMovies() });
+  }
+
+  handleLike(id) {
+    const movie = getMovie(id);
+
+    const movies = [...this.state.movies];
+    const index = movies.indexOf(movie);
+
+    movies[index] = { ...movies[index] };
+
+    movies[index].liked = !movies[index].liked;
+
+    this.setState({ movies });
   }
 }
