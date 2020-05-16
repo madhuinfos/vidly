@@ -1,13 +1,23 @@
 import React, { Component } from "react";
-import { getMovie, getMovies, deleteMovie } from "../services/fakeMovieService";
+import { getMovies, deleteMovie } from "../services/fakeMovieService";
 import Like from "./common/like";
+import Pagination from "./common/pagination";
+
+import { paginate } from "../utils/paginate";
 
 export default class Movies extends Component {
   state = {
     movies: getMovies(),
+    pageSize: 4,
+    selectedPage: 1,
   };
 
   render() {
+    const count = this.state.movies.length;
+    const { pageSize, selectedPage } = this.state;
+
+    const pageItems = paginate(this.state.movies, selectedPage, pageSize);
+
     return (
       <React.Fragment>
         <br />
@@ -21,10 +31,18 @@ export default class Movies extends Component {
               <th>Genre</th>
               <th>Stock</th>
               <th>Rate</th>
+              <th />
+              <th />
             </tr>
           </thead>
-          <tbody>{this.state.movies.map((x) => this.mapMovie(x))}</tbody>
+          <tbody>{pageItems.map((x) => this.mapMovie(x))}</tbody>
         </table>
+        <Pagination
+          itemsCount={count}
+          pageSize={pageSize}
+          selectedPage={selectedPage}
+          onPageChange={(page) => this.handlePageChange(page)}
+        ></Pagination>
       </React.Fragment>
     );
   }
@@ -73,5 +91,9 @@ export default class Movies extends Component {
     movies[index].liked = !movies[index].liked;
 
     this.setState({ movies });
+  }
+
+  handlePageChange(pageNo) {
+    this.setState({ selectedPage: pageNo });
   }
 }
