@@ -1,46 +1,43 @@
-import React from "react";
+import React, { Component } from "react";
+import Table from "./common/table";
+
 import Like from "./common/like";
 
-const MoviesTable = (props) => {
-  const { movies, onLikeMovie, onDeleteMovie } = props;
-  return (
-    <table className="table">
-      <thead>
-        <tr>
-          <th>Title</th>
-          <th>Genre</th>
-          <th>Stock</th>
-          <th>Rate</th>
-          <th />
-          <th />
-        </tr>
-      </thead>
-      <tbody>
-        {movies.map((movie) => (
-          <tr key={movie._id}>
-            <td>{movie.title}</td>
-            <td>{movie.genre.name}</td>
-            <td>{movie.numberInStock}</td>
-            <td>{movie.dailyRentalRate}</td>
-            <td>
-              <Like
-                onClick={() => onLikeMovie(movie)}
-                liked={movie.liked}
-              ></Like>
-            </td>
-            <td>
-              <button
-                className="btn btn-danger btn-sm"
-                onClick={() => onDeleteMovie(movie)}
-              >
-                Delete
-              </button>
-            </td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  );
-};
+class MoviesTable extends Component {
+  render() {
+    const { movies, onLikeMovie, onDeleteMovie } = this.props;
+    const columns = [
+      { name: "title", displayName: "Title" },
+      { name: "genre.name", displayName: "Genre" },
+      { name: "numberInStock", displayName: "Stock" },
+      { name: "dailyRentalRate", displayName: "Rate" },
+      {
+        key: "like",
+        content: (movie) => (
+          <Like onClick={() => onLikeMovie(movie)} liked={movie.liked}></Like>
+        ),
+      },
+      {
+        key: "delete",
+        content: (movie) => (
+          <button
+            className="btn btn-danger btn-sm"
+            onClick={() => onDeleteMovie(movie)}
+          >
+            Delete
+          </button>
+        ),
+      },
+    ];
+    return (
+      <Table
+        items={movies}
+        columns={columns}
+        onSort={(sortColumn) => this.props.onSort(sortColumn)}
+        sortColumn={this.props.sortColumn}
+      ></Table>
+    );
+  }
+}
 
 export default MoviesTable;

@@ -5,6 +5,7 @@ import MoviesTable from "./moviesTable";
 import Pagination from "./common/pagination";
 import { paginate } from "../utils/paginate";
 import Listgroup from "./common/listGroup";
+import _ from "lodash";
 
 export default class Movies extends Component {
   state = {
@@ -13,22 +14,18 @@ export default class Movies extends Component {
     pageSize: 4,
     selectedPage: 1,
     selectedGenre: null,
+    sortColumn: { path: "title", order: "asc" },
   };
 
   componentDidMount() {
-    const generes = [{ name: "All Generes" }, ...getGenres()];
+    const generes = [{ _id: "", name: "All Generes" }, ...getGenres()];
     this.setState({ movies: getMovies(), generes });
   }
 
   render() {
-    const { pageSize, selectedPage, movies, selectedGenre } = this.state;
+    const { pageSize, selectedPage, selectedGenre, sortColumn } = this.state;
 
-    const fileteredMovies =
-      selectedGenre && selectedGenre._id
-        ? movies.filter((movie) => movie.genre.name === selectedGenre.name)
-        : movies;
-
-    const pageItems = paginate(fileteredMovies, selectedPage, pageSize);
+    const { sorted, pageItems } = this.getPagedItems();
 
     return (
       <div className="row">
@@ -43,17 +40,19 @@ export default class Movies extends Component {
 
         <div className="col">
           <br />
-          <h3>{this.getMessage(fileteredMovies)}</h3>
+          <h3>{this.getMessage(sorted)}</h3>
           <br />
 
           <MoviesTable
             movies={pageItems}
+            sortColumn={sortColumn}
             onLikeMovie={(movie) => this.handleLike(movie)}
             onDeleteMovie={(movie) => this.deleteMovie(movie._id)}
+            onSort={(sortColumn) => this.handleSort(sortColumn)}
           ></MoviesTable>
 
           <Pagination
-            itemsCount={fileteredMovies.length}
+            itemsCount={sorted.length}
             pageSize={pageSize}
             selectedPage={selectedPage}
             onPageChange={(page) => this.handlePageChange(page)}
@@ -61,6 +60,24 @@ export default class Movies extends Component {
         </div>
       </div>
     );
+  }
+
+  getPagedItems() {
+    const { pageSize, selectedPage, selectedGenre, sortColumn } = this.state;
+
+    const fileteredMovies =
+      selectedGenre && selectedGenre._id
+        ? this.state.movies.filter(
+            (movie) => movie.genre.name === selectedGenre.name
+          )
+        : this.state.movies;
+    const sorted = _.orderBy(
+      fileteredMovies,
+      [sortColumn.path],
+      [sortColumn.order]
+    );
+    const pageItems = paginate(sorted, selectedPage, pageSize, sorted);
+    return { sorted, pageItems };
   }
 
   getMessage(fileteredMovies) {
@@ -90,5 +107,9 @@ export default class Movies extends Component {
 
   handlePageChange(pageNo) {
     this.setState({ selectedPage: pageNo });
+  }
+
+  handleSort(sortColumn) {
+    this.setState({ sortColumn });
   }
 }
