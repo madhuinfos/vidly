@@ -28,35 +28,37 @@ export default class Movies extends Component {
     const { sorted, pageItems } = this.getPagedItems();
 
     return (
-      <div className="row">
-        <div className="col-3 m-2 ">
-          <br />
-          <Listgroup
-            onItemSelect={(genre) => this.handleGenreClick(genre)}
-            items={this.state.generes}
-            selectedItem={selectedGenre}
-          ></Listgroup>
-        </div>
+      <div>
+        <div className="row">
+          <div className="col-3 m-2 ">
+            <br />
+            <Listgroup
+              onItemSelect={(genre) => this.handleGenreClick(genre)}
+              items={this.state.generes}
+              selectedItem={selectedGenre}
+            ></Listgroup>
+          </div>
 
-        <div className="col">
-          <br />
-          <h3>{this.getMessage(sorted)}</h3>
-          <br />
+          <div className="col">
+            <br />
+            <h3>{this.getMessage(sorted)}</h3>
+            <br />
 
-          <MoviesTable
-            movies={pageItems}
-            sortColumn={sortColumn}
-            onLikeMovie={(movie) => this.handleLike(movie)}
-            onDeleteMovie={(movie) => this.deleteMovie(movie._id)}
-            onSort={(sortColumn) => this.handleSort(sortColumn)}
-          ></MoviesTable>
+            <MoviesTable
+              movies={pageItems}
+              sortColumn={sortColumn}
+              onLikeMovie={(movie) => this.handleLike(movie)}
+              onDeleteMovie={(movie) => this.deleteMovie(movie._id)}
+              onSort={(sortColumn) => this.handleSort(sortColumn)}
+            ></MoviesTable>
 
-          <Pagination
-            itemsCount={sorted.length}
-            pageSize={pageSize}
-            selectedPage={selectedPage}
-            onPageChange={(page) => this.handlePageChange(page)}
-          ></Pagination>
+            <Pagination
+              itemsCount={sorted.length}
+              pageSize={pageSize}
+              selectedPage={selectedPage}
+              onPageChange={(page) => this.handlePageChange(page)}
+            ></Pagination>
+          </div>
         </div>
       </div>
     );

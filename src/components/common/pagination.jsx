@@ -15,7 +15,7 @@ const Pagination = (props) => {
       <nav aria-label="Movies navigation">
         <ul className="pagination">
           <li className="page-item">
-            <a className="page-link">Previous</a>
+            <a className="page-link clickable">Previous</a>
           </li>
 
           {pages.map((page) => (
@@ -25,14 +25,17 @@ const Pagination = (props) => {
                 selectedPage === page ? "page-item active" : "page-item"
               }
             >
-              <a className="page-link" onClick={() => props.onPageChange(page)}>
+              <a
+                className="page-link clickable"
+                onClick={() => props.onPageChange(page)}
+              >
                 {page}
               </a>
             </li>
           ))}
 
           <li className="page-item">
-            <a className="page-link">Next</a>
+            <a className="page-link clickable">Next</a>
           </li>
         </ul>
       </nav>
