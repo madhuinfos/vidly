@@ -5,6 +5,7 @@ import MoviesTable from "./moviesTable";
 import Pagination from "./common/pagination";
 import { paginate } from "../utils/paginate";
 import Listgroup from "./common/listGroup";
+import Searchbar from "./common/searchBar";
 import _ from "lodash";
 
 export default class Movies extends Component {
@@ -14,12 +15,14 @@ export default class Movies extends Component {
     pageSize: 4,
     selectedPage: 1,
     selectedGenre: null,
+    searchQuery: "",
     sortColumn: { path: "title", order: "asc" },
   };
 
   componentDidMount() {
+    const movies = getMovies();
     const generes = [{ _id: "", name: "All Generes" }, ...getGenres()];
-    this.setState({ movies: getMovies(), generes });
+    this.setState({ movies, generes });
   }
 
   render() {
@@ -44,6 +47,18 @@ export default class Movies extends Component {
             <h3>{this.getMessage(sorted)}</h3>
             <br />
 
+            <button
+              onClick={this.handleAddNewMovie}
+              className="btn btn-primary m-2"
+            >
+              New Movie
+            </button>
+
+            <Searchbar
+              query={this.state.searchQuery}
+              onChange={(item) => this.handleSearchChange(item)}
+            ></Searchbar>
+
             <MoviesTable
               movies={pageItems}
               sortColumn={sortColumn}
@@ -65,14 +80,29 @@ export default class Movies extends Component {
   }
 
   getPagedItems() {
-    const { pageSize, selectedPage, selectedGenre, sortColumn } = this.state;
+    const {
+      pageSize,
+      selectedPage,
+      selectedGenre,
+      sortColumn,
+      searchQuery,
+    } = this.state;
 
-    const fileteredMovies =
-      selectedGenre && selectedGenre._id
-        ? this.state.movies.filter(
-            (movie) => movie.genre.name === selectedGenre.name
-          )
-        : this.state.movies;
+    let fileteredMovies = [];
+    console.log(this.state.movies);
+    if (searchQuery) {
+      fileteredMovies = this.state.movies.filter((movie) =>
+        movie.title.toLowerCase().startsWith(searchQuery.toLowerCase())
+      );
+    } else {
+      fileteredMovies =
+        selectedGenre && selectedGenre._id
+          ? this.state.movies.filter(
+              (movie) => movie.genre.name === selectedGenre.name
+            )
+          : this.state.movies;
+    }
+
     const sorted = _.orderBy(
       fileteredMovies,
       [sortColumn.path],
@@ -93,6 +123,10 @@ export default class Movies extends Component {
     this.setState({ movies: getMovies() });
   }
 
+  handleAddNewMovie = (e) => {
+    this.props.history.push("/movies/new");
+  };
+
   handleLike(movie) {
     const movies = [...this.state.movies];
     const index = movies.indexOf(movie);
@@ -103,8 +137,12 @@ export default class Movies extends Component {
     this.setState({ movies });
   }
 
+  handleSearchChange(searchQuery) {
+    this.setState({ searchQuery, selectedPage: 1, selectedGenre: null });
+  }
+
   handleGenreClick(genre) {
-    this.setState({ selectedGenre: genre, selectedPage: 1 });
+    this.setState({ selectedGenre: genre, selectedPage: 1, searchQuery: "" });
   }
 
   handlePageChange(pageNo) {

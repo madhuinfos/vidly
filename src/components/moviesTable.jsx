@@ -12,7 +12,9 @@ class MoviesTable extends Component {
         name: "title",
         displayName: "Title",
         content: (movie) => (
-          <Link to={`/movies/${movie._id}`}>{movie.title}</Link>
+          <Link on to={`/movies/${movie._id}`}>
+            {movie.title}
+          </Link>
         ),
       },
       { name: "genre.name", displayName: "Genre" },
