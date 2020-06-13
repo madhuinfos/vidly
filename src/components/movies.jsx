@@ -1,12 +1,13 @@
 import React, { Component } from "react";
-import { getMovies, deleteMovie } from "../services/fakeMovieService";
-import { getGenres } from "../services/fakeGenreService";
+import { getMovies, deleteMovie } from "../services/movieService";
+import { getGenres } from "../services/genereService";
 import MoviesTable from "./moviesTable";
 import Pagination from "./common/pagination";
 import { paginate } from "../utils/paginate";
 import Listgroup from "./common/listGroup";
 import Searchbar from "./common/searchBar";
 import _ from "lodash";
+import { toast } from "react-toastify";
 
 export default class Movies extends Component {
   state = {
@@ -19,9 +20,10 @@ export default class Movies extends Component {
     sortColumn: { path: "title", order: "asc" },
   };
 
-  componentDidMount() {
-    const movies = getMovies();
-    const generes = [{ _id: "", name: "All Generes" }, ...getGenres()];
+  async componentDidMount() {
+    const movies = await getMovies();
+    const genres = await getGenres();
+    const generes = [{ _id: "", name: "All Generes" }, ...genres];
     this.setState({ movies, generes });
   }
 
@@ -89,7 +91,6 @@ export default class Movies extends Component {
     } = this.state;
 
     let fileteredMovies = [];
-    console.log(this.state.movies);
     if (searchQuery) {
       fileteredMovies = this.state.movies.filter((movie) =>
         movie.title.toLowerCase().startsWith(searchQuery.toLowerCase())
@@ -118,9 +119,15 @@ export default class Movies extends Component {
       : `Showing ${fileteredMovies.length} movies in the database`;
   }
 
-  deleteMovie(id) {
-    deleteMovie(id);
-    this.setState({ movies: getMovies() });
+  async deleteMovie(id) {
+    try {
+      await deleteMovie(id);
+    } catch (ex) {
+      if (ex.response && ex.response.status === 404)
+        toast.error("the movie is already deleted");
+    }
+
+    this.setState({ movies: await getMovies() });
   }
 
   handleAddNewMovie = (e) => {

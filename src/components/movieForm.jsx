@@ -1,8 +1,8 @@
 import React from "react";
 import Form from "./common/form";
 import Joi from "joi-browser";
-import { getGenres } from "../services/fakeGenreService";
-import { saveMovie, getMovie } from "../services/fakeMovieService";
+import { getGenres } from "../services/genereService";
+import { saveMovie, getMovie } from "../services/movieService";
 
 class MovieForm extends Form {
   state = {
@@ -25,22 +25,29 @@ class MovieForm extends Form {
     rating: Joi.number().required().label("Rate"),
   };
 
-  componentDidMount() {
-    console.log(this.props);
-    const generes = getGenres();
+  async componentDidMount() {
+    await this.pouplateGenres();
+
+    await this.getMovie();
+  }
+
+  async pouplateGenres() {
+    const generes = await getGenres();
     this.setState({ generes });
+  }
 
-    const movieId = this.props.match.params.id;
-    if (movieId === "new") return;
+  async getMovie() {
+    try {
+      const movieId = this.props.match.params.id;
+      if (movieId === "new") return;
 
-    const movie = getMovie(movieId);
-
-    if (movie === null) this.props.history.repalce("/not-found");
-
-    const data = { ...this.state.data };
-    data.generes = generes;
-
-    this.setState({ data: this.mapToViewModel(movie) });
+      const movie = await getMovie(movieId);
+      this.setState({ data: this.mapToViewModel(movie.data) });
+    } catch (error) {
+      if (error.response && error.response.status === 404) {
+        this.props.history.replace("/not-found");
+      }
+    }
   }
 
   mapToViewModel(movie) {
@@ -53,11 +60,22 @@ class MovieForm extends Form {
     };
   }
 
-  doSubmit = (e) => {
-    console.log("submitted", this.state);
-    saveMovie(this.state.data);
+  doSubmit = async (e) => {
+    const movie = this.mapToModel(this.state.data);
+    console.log("submitted", movie);
+    await saveMovie(movie);
     this.props.history.push("/movies");
   };
+
+  mapToModel(movie) {
+    return {
+      _id: movie._id,
+      title: movie.title,
+      genreId: movie.selectedGenere,
+      numberInStock: movie.stockNo,
+      dailyRentalRate: movie.rating,
+    };
+  }
 
   render() {
     return (
