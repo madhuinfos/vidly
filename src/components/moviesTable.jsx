@@ -6,7 +6,7 @@ import { Link } from "react-router-dom";
 
 class MoviesTable extends Component {
   render() {
-    const { movies, onLikeMovie, onDeleteMovie } = this.props;
+    const { movies, onLikeMovie, onDeleteMovie, user } = this.props;
     const columns = [
       {
         name: "title",
@@ -28,14 +28,16 @@ class MoviesTable extends Component {
       },
       {
         key: "delete",
-        content: (movie) => (
-          <button
-            className="btn btn-danger btn-sm"
-            onClick={() => onDeleteMovie(movie)}
-          >
-            Delete
-          </button>
-        ),
+        content: (movie) =>
+          user &&
+          user.isAdmin && (
+            <button
+              className="btn btn-danger btn-sm"
+              onClick={() => onDeleteMovie(movie)}
+            >
+              Delete
+            </button>
+          ),
       },
     ];
     return (

@@ -6,6 +6,8 @@ import Pagination from "./common/pagination";
 import { paginate } from "../utils/paginate";
 import Listgroup from "./common/listGroup";
 import Searchbar from "./common/searchBar";
+import auth from "../services/authService";
+
 import _ from "lodash";
 import { toast } from "react-toastify";
 
@@ -32,6 +34,8 @@ export default class Movies extends Component {
 
     const { sorted, pageItems } = this.getPagedItems();
 
+    const user = auth.getCurrentUser();
+
     return (
       <div>
         <div className="row">
@@ -49,12 +53,14 @@ export default class Movies extends Component {
             <h3>{this.getMessage(sorted)}</h3>
             <br />
 
-            <button
-              onClick={this.handleAddNewMovie}
-              className="btn btn-primary m-2"
-            >
-              New Movie
-            </button>
+            {user && (
+              <button
+                onClick={this.handleAddNewMovie}
+                className="btn btn-primary m-2"
+              >
+                New Movie
+              </button>
+            )}
 
             <Searchbar
               query={this.state.searchQuery}
@@ -63,6 +69,7 @@ export default class Movies extends Component {
 
             <MoviesTable
               movies={pageItems}
+              user={user}
               sortColumn={sortColumn}
               onLikeMovie={(movie) => this.handleLike(movie)}
               onDeleteMovie={(movie) => this.deleteMovie(movie._id)}
